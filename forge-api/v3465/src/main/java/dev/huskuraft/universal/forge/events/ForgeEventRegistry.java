@@ -3,11 +3,13 @@ package dev.huskuraft.universal.forge.events;
 import com.google.auto.service.AutoService;
 
 import dev.huskuraft.universal.api.events.impl.EventRegistry;
+import dev.huskuraft.universal.api.events.lifecycle.ServerTick;
 import dev.huskuraft.universal.forge.networking.ForgeNetworking;
 import dev.huskuraft.universal.vanilla.core.MinecraftPlayer;
 import dev.huskuraft.universal.vanilla.core.MinecraftServer;
 import dev.huskuraft.universal.vanilla.core.MinecraftWorld;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -70,6 +72,14 @@ public class ForgeEventRegistry extends EventRegistry {
     @SubscribeEvent
     public void onServerStopped(ServerStoppedEvent event) {
         getServerStoppedEvent().invoker().onServerStopped(new MinecraftServer(event.getServer()));
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        getServerTickEvent().invoker().onServerTick(new MinecraftServer(event.getServer()), switch (event.phase) {
+            case START -> ServerTick.Phase.START;
+            case END -> ServerTick.Phase.END;
+        });
     }
 
 }

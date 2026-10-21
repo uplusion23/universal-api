@@ -3,6 +3,7 @@ package dev.huskuraft.universal.neoforge.events;
 import com.google.auto.service.AutoService;
 
 import dev.huskuraft.universal.api.events.impl.EventRegistry;
+import dev.huskuraft.universal.api.events.lifecycle.ServerTick;
 import dev.huskuraft.universal.neoforge.networking.NeoForgeNetworking;
 import dev.huskuraft.universal.neoforge.platform.NeoForgeInitializer;
 import dev.huskuraft.universal.vanilla.core.MinecraftPlayer;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 @AutoService(EventRegistry.class)
@@ -73,6 +75,16 @@ public class NeoForgeEventRegistry extends EventRegistry {
     @SubscribeEvent
     public void onServerStopped(ServerStoppedEvent event) {
         getServerStoppedEvent().invoker().onServerStopped(new MinecraftServer(event.getServer()));
+    }
+
+    @SubscribeEvent
+    public void onServerTickPre(ServerTickEvent.Pre event) {
+        getServerTickEvent().invoker().onServerTick(new MinecraftServer(event.getServer()), ServerTick.Phase.START);
+    }
+
+    @SubscribeEvent
+    public void onServerTickPost(ServerTickEvent.Post event) {
+        getServerTickEvent().invoker().onServerTick(new MinecraftServer(event.getServer()), ServerTick.Phase.END);
     }
 
 }

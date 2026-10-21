@@ -6,6 +6,7 @@ import dev.huskuraft.universal.api.events.lifecycle.ServerStarted;
 import dev.huskuraft.universal.api.events.lifecycle.ServerStarting;
 import dev.huskuraft.universal.api.events.lifecycle.ServerStopped;
 import dev.huskuraft.universal.api.events.lifecycle.ServerStopping;
+import dev.huskuraft.universal.api.events.lifecycle.ServerTick;
 import dev.huskuraft.universal.api.events.networking.RegisterNetwork;
 import dev.huskuraft.universal.api.events.player.PlayerChangeWorld;
 import dev.huskuraft.universal.api.events.player.PlayerLoggedIn;
@@ -47,6 +48,10 @@ public class EventRegistry extends EventHolder {
     }
 
     public Event<ServerStopped> getServerStoppedEvent() {
+        return get();
+    }
+
+    public Event<ServerTick> getServerTickEvent() {
         return get();
     }
 

@@ -64,5 +64,40 @@ public interface Player extends Entity {
 
     void resetStat(Stat<?> stat);
 
+    // Uses the permission mod if the server has one. If not, uses the operator level.
+    default boolean hasPermission(String permission, int defaultPermissionLevel) {
+        throw new UnsupportedOperationException("Permissions are not supported on this platform");
+    }
+
+    default float getHealth() {
+        throw new UnsupportedOperationException("Health is not supported on this platform");
+    }
+
+    default float getAbsorptionAmount() {
+        throw new UnsupportedOperationException("Absorption is not supported on this platform");
+    }
+
+    default boolean mayFly() {
+        throw new UnsupportedOperationException("Flight is not supported on this platform");
+    }
+
+    default boolean isFlying() {
+        throw new UnsupportedOperationException("Flight is not supported on this platform");
+    }
+
+    default float getFlyingSpeed() {
+        throw new UnsupportedOperationException("Flight is not supported on this platform");
+    }
+
+    // Use on the server. The server sends the change to the client of the player.
+    default void setFlight(boolean mayFly, boolean flying, float flyingSpeed) {
+        throw new UnsupportedOperationException("Flight is not supported on this platform");
+    }
+
+    // Returns the respawn bed of the player, or null if there is no bed in the current world.
+    // If loadChunk is false, a bed in an unloaded chunk is not examined and counts as present.
+    default BlockPosition getRespawnBedPosition(boolean loadChunk) {
+        throw new UnsupportedOperationException("Respawn beds are not supported on this platform");
+    }
 
 }

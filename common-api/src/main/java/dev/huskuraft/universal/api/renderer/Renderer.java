@@ -463,6 +463,15 @@ public abstract class Renderer {
 
     public abstract void renderBlockEntity(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockEntity blockEntity);
 
+    // Renders with full light and without the adjacent blocks, for previews outside the world. The world gives only the tints.
+    public void renderBlockStateFullBright(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockState blockState) {
+        renderBlockState(renderLayer, world, blockPosition, blockState);
+    }
+
+    public void renderBlockEntityFullBright(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockEntity blockEntity) {
+        renderBlockEntity(renderLayer, world, blockPosition, blockEntity);
+    }
+
     private static class ScissorStack {
 
         private final Deque<ScreenRect> stack = new ArrayDeque<>();

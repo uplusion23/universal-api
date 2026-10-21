@@ -6,6 +6,7 @@ import com.google.auto.service.AutoService;
 
 import dev.huskuraft.universal.api.platform.Server;
 import dev.huskuraft.universal.api.plugin.openpac.OpenPacChunkClaimsManager;
+import dev.huskuraft.universal.api.plugin.openpac.OpenPacChunkProtection;
 import dev.huskuraft.universal.api.plugin.openpac.OpenPacPlugin;
 import xaero.pac.OpenPartiesAndClaims;
 import xaero.pac.common.server.api.OpenPACServerAPI;
@@ -25,6 +26,11 @@ public class OpenPacPluginImpl implements OpenPacPlugin {
     @Override
     public OpenPacChunkClaimsManager getServerClaimManager(@Nonnull Server server) {
         return OpenPacChunkClaimsManagerImpl.ofNullable(OpenPACServerAPI.get(server.reference()).getServerClaimsManager());
+    }
+
+    @Override
+    public OpenPacChunkProtection getChunkProtection(@Nonnull Server server) {
+        return OpenPacChunkProtectionImpl.ofNullable(OpenPACServerAPI.get(server.reference()).getChunkProtection());
     }
 
 }

@@ -1,8 +1,10 @@
 package dev.huskuraft.universal.vanilla.core;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import dev.huskuraft.universal.api.core.BlockInteraction;
+import dev.huskuraft.universal.api.core.BlockPosition;
 import dev.huskuraft.universal.api.core.GameMode;
 import dev.huskuraft.universal.api.core.InteractionHand;
 import dev.huskuraft.universal.api.core.Inventory;
@@ -19,6 +21,8 @@ import dev.huskuraft.universal.vanilla.platform.MinecraftClient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.Entity;
 
 public record MinecraftPlayer(net.minecraft.world.entity.player.Player refs) implements Player {
 
@@ -151,6 +155,81 @@ public record MinecraftPlayer(net.minecraft.world.entity.player.Player refs) imp
     @Override
     public void resetStat(Stat<?> stat) {
         refs.resetStat(stat.reference());
+    }
+
+    // fabric-permissions-api is optional. LuckPerms and other mods include it.
+    private static final Method PERMISSIONS_CHECK = findPermissionsCheck();
+
+    private static Method findPermissionsCheck() {
+        try {
+            return Class.forName("me.lucko.fabric.api.permissions.v0.Permissions").getMethod("check", Entity.class, String.class, int.class);
+        } catch (ReflectiveOperationException | LinkageError e) {
+            return null;
+        }
+    }
+
+    @Override
+    public boolean hasPermission(String permission, int defaultPermissionLevel) {
+        if (PERMISSIONS_CHECK != null) {
+            try {
+                return (boolean) PERMISSIONS_CHECK.invoke(null, refs, permission, defaultPermissionLevel);
+            } catch (ReflectiveOperationException ignored) {
+            }
+        }
+        return refs.hasPermissions(defaultPermissionLevel);
+    }
+
+    @Override
+    public float getHealth() {
+        return refs.getHealth();
+    }
+
+    @Override
+    public float getAbsorptionAmount() {
+        return refs.getAbsorptionAmount();
+    }
+
+    @Override
+    public boolean mayFly() {
+        return refs.getAbilities().mayfly;
+    }
+
+    @Override
+    public boolean isFlying() {
+        return refs.getAbilities().flying;
+    }
+
+    @Override
+    public float getFlyingSpeed() {
+        return refs.getAbilities().getFlyingSpeed();
+    }
+
+    @Override
+    public void setFlight(boolean mayFly, boolean flying, float flyingSpeed) {
+        refs.getAbilities().mayfly = mayFly;
+        refs.getAbilities().flying = flying;
+        refs.getAbilities().setFlyingSpeed(flyingSpeed);
+        refs.onUpdateAbilities();
+    }
+
+    @Override
+    public BlockPosition getRespawnBedPosition(boolean loadChunk) {
+        if (!(refs instanceof ServerPlayer serverPlayer)) {
+            return null;
+        }
+        var respawnPosition = serverPlayer.getRespawnPosition();
+        if (respawnPosition == null || !serverPlayer.getRespawnDimension().equals(serverPlayer.getLevel().dimension())) {
+            return null;
+        }
+        var level = serverPlayer.getLevel();
+        // Do not load the chunk each tick, because it is slow. Nothing can break the bed while the chunk is unloaded.
+        if (!loadChunk && !level.isLoaded(respawnPosition)) {
+            return MinecraftConvertor.toPlatformBlockPosition(respawnPosition);
+        }
+        if (!level.getBlockState(respawnPosition).is(BlockTags.BEDS)) {
+            return null;
+        }
+        return MinecraftConvertor.toPlatformBlockPosition(respawnPosition);
     }
 
 }

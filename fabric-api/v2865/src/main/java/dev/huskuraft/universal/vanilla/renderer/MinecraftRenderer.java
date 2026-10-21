@@ -22,10 +22,12 @@ import dev.huskuraft.universal.vanilla.core.MinecraftConvertor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 
 public class MinecraftRenderer extends Renderer {
@@ -111,8 +113,16 @@ public class MinecraftRenderer extends Renderer {
 
     @Override
     public void renderBlockState(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockState blockState) {
+        renderBlockState(renderLayer, (Level) world.reference(), blockPosition, blockState);
+    }
+
+    @Override
+    public void renderBlockStateFullBright(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockState blockState) {
+        renderBlockState(renderLayer, new FullBrightBlockGetter(world.reference()), blockPosition, blockState);
+    }
+
+    private void renderBlockState(RenderLayer renderLayer, BlockAndTintGetter minecraftWorld, BlockPosition blockPosition, BlockState blockState) {
         var minecraftBlockRenderer = minecraftClient.getBlockRenderer();
-        var minecraftWorld = (Level) world.reference();
         var minecraftRenderLayer = (RenderType) renderLayer.reference();
         var minecraftBlockState = (net.minecraft.world.level.block.state.BlockState) blockState.reference();
         var minecraftBlockPosition = MinecraftConvertor.toPlatformBlockPosition(blockPosition);
@@ -139,6 +149,14 @@ public class MinecraftRenderer extends Renderer {
         minecraftBlockEntityRenderDispatcher.render(minecraftBlockEntity, 0f, minecraftMatrixStack, minecraftBufferSource);
 
 
+    }
+
+    @Override
+    public void renderBlockEntityFullBright(RenderLayer renderLayer, World world, BlockPosition blockPosition, BlockEntity blockEntity) {
+        var minecraftBlockEntity = (net.minecraft.world.level.block.entity.BlockEntity) blockEntity.reference();
+
+        minecraftBlockEntity.setLevel(world.reference());
+        minecraftClient.getBlockEntityRenderDispatcher().renderItem(minecraftBlockEntity, minecraftMatrixStack, minecraftBufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY);
     }
 
 

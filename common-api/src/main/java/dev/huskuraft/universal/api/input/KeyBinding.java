@@ -25,4 +25,14 @@ public interface KeyBinding extends PlatformReference {
         return getKey().isDown();
     }
 
+    // Sets a keyboard key and saves the game options. KeyCodes.KEY_UNKNOWN removes the binding.
+    default void setKeyCode(int code) {
+        throw new UnsupportedOperationException("Rebinding keys is not supported on this platform");
+    }
+
+    // Sets a key from getKey or getDefaultKey and saves the game options. The key can be a mouse button.
+    default void setKey(Key key) {
+        throw new UnsupportedOperationException("Rebinding keys is not supported on this platform");
+    }
+
 }
