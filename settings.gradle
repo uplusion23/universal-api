@@ -21,32 +21,22 @@ pluginManagement {
     }
 }
 
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'
+}
+
 include ':common-api'
 
-[
-    'v2730', //'1.17.1',
-//  'v2860', //'1.18',
-    'v2865', //'1.18.1',
-    'v2975', //'1.18.2',
-//  'v3105', //'1.19',
-//  'v3117', //'1.19.1',
-    'v3120', //'1.19.2',
-    'v3218', //'1.19.3',
-    'v3337', //'1.19.4',
-//  'v3463', //'1.20',
-    'v3465', //'1.20.1',
-    'v3578', //'1.20.2',
-//  'v3698', //'1.20.3',
-    'v3700', //'1.20.4',
-//  'v3837', //'1.20.5',
-    'v3839', //'1.20.6',
-//  'v3953', //'1.21',
-    'v3955', //'1.21.1',
-//  'v4080', //'1.21.2',
-    'v4082', //'1.21.3',
-//  'v4189', //'1.21.4',
-].forEach { version ->
-    include ":fabric-api:${version}"
+// Set universal_targets to build only some targets, for example -Puniversal_targets=1.20.1:fabric-api,1.20.1:forge-api.
+// If universal_targets is not set or is 'all', the build includes all targets.
+def universalTargets = (providers.gradleProperty('universal_targets').orNull ?: 'all').split(',')*.trim()
+
+def includeTarget = { String api, String version ->
+    def properties = new Properties()
+    file("${api}/${version}/gradle.properties").withInputStream { properties.load(it) }
+    if (universalTargets.contains('all') || universalTargets.contains("${properties.getProperty('minecraft_version')}:${api}".toString())) {
+        include ":${api}:${version}"
+    }
 }
 
 [
@@ -72,7 +62,7 @@ include ':common-api'
     'v4082', //'1.21.3',
 //  'v4189', //'1.21.4',
 ].forEach { version ->
-    include ":quilt-api:${version}"
+    includeTarget('fabric-api', version)
 }
 
 [
@@ -98,7 +88,33 @@ include ':common-api'
     'v4082', //'1.21.3',
 //  'v4189', //'1.21.4',
 ].forEach { version ->
-    include ":forge-api:${version}"
+    includeTarget('quilt-api', version)
+}
+
+[
+    'v2730', //'1.17.1',
+//  'v2860', //'1.18',
+    'v2865', //'1.18.1',
+    'v2975', //'1.18.2',
+//  'v3105', //'1.19',
+//  'v3117', //'1.19.1',
+    'v3120', //'1.19.2',
+    'v3218', //'1.19.3',
+    'v3337', //'1.19.4',
+//  'v3463', //'1.20',
+    'v3465', //'1.20.1',
+    'v3578', //'1.20.2',
+//  'v3698', //'1.20.3',
+    'v3700', //'1.20.4',
+//  'v3837', //'1.20.5',
+    'v3839', //'1.20.6',
+//  'v3953', //'1.21',
+    'v3955', //'1.21.1',
+//  'v4080', //'1.21.2',
+    'v4082', //'1.21.3',
+//  'v4189', //'1.21.4',
+].forEach { version ->
+    includeTarget('forge-api', version)
 }
 
 [
@@ -109,7 +125,7 @@ include ':common-api'
     'v4082', //'1.21.3',
 //  'v4189', //'1.21.4',
 ].forEach { version ->
-    include ":neoforge-api:${version}"
+    includeTarget('neoforge-api', version)
 }
 
 include ':third-party:ftb-chunks-api-v0'

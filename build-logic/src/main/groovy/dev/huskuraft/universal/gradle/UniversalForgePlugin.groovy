@@ -54,13 +54,14 @@ class UniversalForgePlugin implements Plugin<Project> {
             }
         }
 
-        project.jar {
-            finalizedBy 'reobfJar'
-        }
+        // Forge uses the official mappings at runtime from 1.20.6. ForgeGradle does not reobfuscate these versions.
+        if (dataVersion < 3801) {
+            project.jar {
+                finalizedBy 'reobfJar'
+            }
 
-        project.shadowJar {
-            dependsOn 'reobfJar'
-            if (dataVersion < 3801) {
+            project.shadowJar {
+                dependsOn 'reobfJar'
                 project.reobf {
                     shadowJar {
                     }
